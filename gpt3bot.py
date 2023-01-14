@@ -48,9 +48,9 @@ BOTNICK = "GPT3_Bot_"
 ALLOW_ALL_USERS = True
 
 # API KEYS Open AI
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = ""
 # API DPASTE TO SHARE CODE WITH !code command
-DPASTE_API_KEY = "314d89b1d25a6156"
+DPASTE_API_KEY = ""
 
 # ================================================================================================
 #
