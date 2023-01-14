@@ -37,16 +37,24 @@ import re
 from jaraco.stream import buffer
 
 # Lista de usuarios que pueden realizar peticiones
-ALLOWED_USERS = ["nick1", "nick2"]
+ALLOWED_USERS = ["mrkprod", "nick2"]
+ADMIN_USER = ["mrkprod"] # ONLY USED BY !raw command for join channels, say msg, etc
 SERVER = "irc.irc-hispano.org"
-CHANNEL = "#inteligencia_artificial"
+CHANNELS = "#inteligencia_artificial"
 BOTNICK = "GPT3_Bot_"
 
+# All users can chat with bot using next syntax on irc channel: 
+# Botnick: Prompt 
 ALLOW_ALL_USERS = True
+
+# API KEYS Open AI
+OPENAI_API_KEY = "YOUR_OPEN_API_KEY"
+# API DPASTE TO SHARE CODE WITH !code command
+DPASTE_API_KEY = "YOUR_DPASTE_API_KEY"
 
 # ================================================================================================
 #
-#   Detector de lenguaje de programación
+#   Detector de lenguaje de programación para el comando !code
 #
 # ================================================================================================
 
@@ -67,7 +75,7 @@ def detect_syntax(text):
 
 # ================================================================================================
 #
-#   CLASE GPT3BOT: Conectamos al servido de irc
+#   CLASE GPT3BOT
 #
 # ================================================================================================
 
@@ -111,13 +119,13 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
 
         question = cmd
         
-        #if nick not in ALLOWED_USERS: # Chequeamos que el usuario está en la lista de admins
-        #    return
+        if nick not in ALLOWED_USERS or not ALLOW_ALL_USERS: # Chequeamos que el usuario está en la lista de admins
+            return
        
         if cmd == "disconnect":  # Desconectamos del servidor
             self.disconnect()
             return
-        if cmd[:4] == "!raw" and nick == "mrkprod":
+        if cmd[:4] == "!raw" and nick == ADMIN_USER: # ADMIN NICK FOR IRC RAW COMMANDS
             param = cmd[5:]
             print(param)
             self.connection.send_raw(format(param))
@@ -139,7 +147,7 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
                     start_sequence = "\nAI:"
                     restart_sequence = "\nHuman: "
 
-                    openai.api_key = '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'
+                    openai.api_key = OPENAI_API_KEY
                     r = openai.Completion.create(
                         model="text-davinci-002",
                         prompt=question,
@@ -167,7 +175,7 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
                     url = "https://dpaste.com/api/"
                     headerspaste = {
                         "User-Agent": "GPT3Bot",
-                        "Authorization": "Bearer 314d89b1d25a6156"
+                        "Authorization": "Bearer "+DPASTE_API_KEY
                     }
                     datapaste = {
                         "content": text,
@@ -207,7 +215,7 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
                     start_sequence = "\nHuman: "
                     restart_sequence = "\n"
 
-                    openai.api_key = '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'
+                    openai.api_key = OPENAI_API_KEY
                     r = openai.Completion.create(
                         model="text-davinci-003",
                         prompt="Human: "+question,
@@ -256,10 +264,6 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
         # else:
             #    c.privmsg(e.source, "Error al comunicar con OpenAI API.")
 
-server = "irc.irc-hispano.org"
-channel = "#bnc,#ai,#inteligencia_artificial"
-nick = "GPT3_Bot_"
 
-
-bot = GPT3Bot(server, channel, nick)
+bot = GPT3Bot(SERVER, CHANNELS, BOTNICK)
 bot.start()
