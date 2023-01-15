@@ -35,22 +35,7 @@ import os
 import time
 import re
 from jaraco.stream import buffer
-
-# Lista de usuarios que pueden realizar peticiones
-ALLOWED_USERS = ["mrkprod", "nick2"]
-ADMIN_USER = ["mrkprod"] # ONLY USED BY !raw command for join channels, say msg, etc
-SERVER = "irc.irc-hispano.org"
-CHANNELS = "#inteligencia_artificial"
-BOTNICK = "GPT3_Bot_"
-
-# All users can chat with bot using next syntax on irc channel: 
-# Botnick: Prompt 
-ALLOW_ALL_USERS = True
-
-# API KEYS Open AI
-OPENAI_API_KEY = ""
-# API DPASTE TO SHARE CODE WITH !code command
-DPASTE_API_KEY = ""
+from config import *
 
 # ================================================================================================
 #
@@ -118,10 +103,10 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
         print('PROMPT >> '+cmd)
 
         question = cmd
+        if not ALLOW_ALL_USERS: # Verificamos lista de admins solo si ALLOW_ALL_USERS es verdadero
+            if nick not in ALLOWED_USERS: # Chequeamos que el usuario está en la lista de admins
+                return
         
-        if nick not in ALLOWED_USERS or not ALLOW_ALL_USERS: # Chequeamos que el usuario está en la lista de admins
-            return
-       
         if cmd == "disconnect":  # Desconectamos del servidor
             self.disconnect()
             return
@@ -134,6 +119,7 @@ class GPT3Bot(irc.bot.SingleServerIRCBot):
         # ================================================================================================
         #
         #   CODE MODULE: Conecta con Open AI y sube el codigo generado a DPASTE
+        #   (SIN TERMINAR)
         #
         # ================================================================================================
 
